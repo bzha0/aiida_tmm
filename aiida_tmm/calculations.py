@@ -71,7 +71,7 @@ class MyVaspCalculation(CalcJob):
         and write to out_file.
         :param outpu_file: absolute path of the object to write to
         """
-        potential = self.input.potential.get_contents() # define in PotcarData class
+        potential = self.input.potential.get_content() # define in PotcarData class
         with out_file.open('wb') as out:
             out.write(potential)
 
