@@ -1,9 +1,7 @@
 import re
 import io
 
-from aiida.plugins import DataFactory
 from aiida.orm import StructureData
-from aiida_vasp.utils.aiida_utils import get_data_node
 
 class PotcarIo(object):
     """
@@ -74,6 +72,3 @@ class PotcarIo(object):
         potcar = "\n".join(str(pot) for pot in potcars)
         potcar_obj = io.BytesIO(str.encode(potcar)) 
         return potcar_obj
-            
-       
-

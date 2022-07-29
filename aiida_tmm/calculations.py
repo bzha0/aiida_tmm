@@ -1,9 +1,10 @@
 from aiida.common import datastructures
 from aiida.engine import CalcJob
-from aiida.orm import SinglefileData
+from aiida.orm import SinglefileData, StructureData, CifData
 from aiida.plugins import DataFactory
 
-from pymatgen.io.vasp.inputs import Incar
+from pymatgen.io.vasp import Incar
+from ase.io.vasp import write_vasp
 
 class MyVaspCalculation(CalcJob):
     """AiiDA calculation plugin wrapping the vasp exacutable."""
@@ -58,7 +59,13 @@ class MyVaspCalculation(CalcJob):
         incar_content.write_file(out_file)
 
     def write_poscar(self, out_file):
-
+        """
+        Write the POSCAR.
+        Get the content of the structure node ('structure' or 'cif') and write to out_file.
+        """
+        structure_node = self.inputs.structure # can be 'structure' or 'cif'
+        poscar_content = structure_node.get_ase()
+        write_vasp(outfile, poscar_content)
 
     def write_kpoints(self, out_file):
 
@@ -79,7 +86,7 @@ class MyVaspCalculation(CalcJob):
         """
         Prepare the four VASP input files.
         Write the output files as listed in _RETRIEVE_LIST.
-        :param folder: an `aiida.common.folders.Folder` where the plugin should temporarily place all foldes needed by the         calculation.
+        :param folder: an `aiida.common.folders.Folder` where the plugin should temporarily place all foldes needed by the calculation.
         :return calcinfo: `aiida.common.datastructures.CalcInfo` instance
         """
         # Prepare input files
