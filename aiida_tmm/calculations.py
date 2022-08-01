@@ -36,7 +36,7 @@ class MyVaspCalculation(CalcJob):
         spec.inputs['metadata']['options']['account'].default = 'p0020160'
         spec.inputs['metadata']['options']['max_memory_kb'].default = 43008000 # 1750*24*1024
 
-        # spec.input('metadata.options.parser_name', default='vasp.vasp')
+        spec.input('metadata.options.parser_name', default='vasp_tmm.vasp')
 
         # define outputs
         # spec.output('structure', valid_type=get_data_class('structure'), required=False, help='The output structure (CONTCAR).')
