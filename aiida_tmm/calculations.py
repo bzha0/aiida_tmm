@@ -2,6 +2,7 @@ from aiida.common import datastructures
 from aiida.engine import CalcJob
 from aiida.orm import SinglefileData, StructureData, CifData
 from aiida.plugins import DataFactory
+#from aiida_tmm.utils import PotcarIo 
 
 from pymatgen.io.vasp import Incar
 from pymatgen.io.vasp import Poscar
@@ -14,6 +15,7 @@ class MyVaspCalculation(CalcJob):
     _VASP_OUTPUT = 'vasp_output'
     _RETRIEVE_LIST = ['CONTCAR', 'OUTCAR', 'vasprun.xml', 'EIGENVAL', 'DOSCAR', 'CHGCAR', _VASP_OUTPUT]
     _SCF_RETRIEVE_LIST = ['CHGCAR'] # just for testing
+    #_POT_PATH = '/home/bz43nogu/PBE54/'
 
     @classmethod
     def define(cls, spec):
@@ -88,6 +90,8 @@ class MyVaspCalculation(CalcJob):
         and write to out_file.
         :param outpu_file: absolute path of the object to write to
         """
+        #pot_path = self._POT_PATH
+        #potcar = PotcarIo(pot_path)
         potential = self.input.potential.get_content() # define in PotcarData class
         with out_file.open('wb') as out:
             out.write(potential)

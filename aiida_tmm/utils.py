@@ -9,19 +9,21 @@ class PotcarIo(object):
     and put them together to be ready to pass to PotcarData.
     """
 
-    _PATH = '/home/bz43nogu/PBE54/'
+    # _PATH = '/home/bz43nogu/PBE54/'
 
-    def __init__(self, structure=None):
+    def __init__(self, structure=None, path):
+        """ structure can either be passed directly to the class or get as a node from database (added later) """
         self.structure = structure
-        if self.structure is None:
-            self.structure = self.get_structure()
-        if self.structure is None:
-            raise ValueError('cannot find any structure in the aiida repository')
+        #if self.structure is None:
+        #    self.structure = self.get_structure()
+        #if self.structure is None:
+        #    raise ValueError('cannot find any structure in the aiida repository')
         self.pot_list = self.get_pot_list()
+        self.path = path
     
-    def get_structure(self):
-        struc_node = StructureData(ase=structure.get_ase())
-        return struc_node
+    #def get_structure(self):
+    #    struc_node = StructureData(ase=structure.get_ase())
+    #    return struc_node
 
     def get_pot_list(self):
         """ Get species from strucuture node.
@@ -56,7 +58,7 @@ class PotcarIo(object):
             pot_list.append(pot_name)
         return pot_list
 
-    def get_potcar_obj(self, path):
+    def get_potcar_obj(self):
         """
         Reads potential files from your local path.
         :param path: path on your local computer that stores all the potential folders
@@ -64,11 +66,11 @@ class PotcarIo(object):
         potcars = []
 
         for sym in self.pot_list:
-            POTCAR_path = _PATH + sym + 'POTCAR'
+            POTCAR_path = self.path + sym + 'POTCAR'
             with open(POTCAR_path, 'r', encoding='utf8') as potcar_fo:
                 potcar_string = re.compile(r'\n?(\s*.*?End of Dataset\n)', re.S).findall(potcar_fo.read())
             potcars.append(potcar_string)
 
         potcar = "\n".join(str(pot) for pot in potcars)
         potcar_obj = io.BytesIO(str.encode(potcar)) 
-        return potcar_obj
+        return potcar_obj # potcar string to be passed to PotcarData
