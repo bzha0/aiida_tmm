@@ -4,6 +4,8 @@ from aiida.orm import SinglefileData, StructureData, CifData
 from aiida.plugins import DataFactory
 
 from pymatgen.io.vasp import Incar
+from pymatgen.io.vasp import Poscar
+from pymatgen.io.vasp import Kpoints
 from ase.io.vasp import write_vasp
 
 class MyVaspCalculation(CalcJob):
@@ -32,8 +34,7 @@ class MyVaspCalculation(CalcJob):
                 }
         spec.inputs['metadata']['options']['max_wallclock_seconds'].default = 1800
         spec.inputs['metadata']['options']['account'].default = 'p0020160'
-        spec.inputs['metadata']['options']['max_memory_kb'].default = 43008000
-
+        spec.inputs['metadata']['options']['max_memory_kb'].default = 43008000 # 1750*24*1024
 
         # spec.input('metadata.options.parser_name', default='vasp.vasp')
 
@@ -54,8 +55,7 @@ class MyVaspCalculation(CalcJob):
         :param outpu_file: absolute path of the object to write to
         """
         parameters = self.inputs.parameter.get_dict()
-        incar = Incar()
-        incar_content = incar.from_dict(parameters)
+        incar_content = Incar.from_dict(parameters)
         incar_content.write_file(out_file)
 
     def write_poscar(self, out_file):
@@ -68,7 +68,17 @@ class MyVaspCalculation(CalcJob):
         write_vasp(outfile, poscar_content)
 
     def write_kpoints(self, out_file):
-
+        """
+        Write the KPOINTS.
+        Opt1: get the content of the kpoints node ('array.kpoints') and write to out_file.
+        Opt2: get automatic kpoints by setting k grid density and reading POSCAR
+        """
+        structure = Poscar.from_file('POSCAR').structure
+        k_density = self.inputs.kpoints[0] # only one number
+        kpoints = Kpoints.automatic_density(structure, k_density)
+        # kpoints_node = self.inputs.kpoints # kpoints mesh
+        # kpoints_content = kpoints_node 
+        kpoints.write_file(out_file)
 
     def write_potcar(self, out_file):
         """
