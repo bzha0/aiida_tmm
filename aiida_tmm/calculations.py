@@ -1,8 +1,9 @@
 from aiida.common import datastructures
 from aiida.engine import CalcJob
-from aiida.orm import SinglefileData, StructureData, CifData
+from aiida.orm import SinglefileData, StructureData, CifData, Dict, KpointsData
 from aiida.plugins import DataFactory
 #from aiida_tmm.utils import PotcarIo 
+from aiida_tmm.data import PotcarData, ChgcarData, WavecarData
 
 from pymatgen.io.vasp import Incar
 from pymatgen.io.vasp import Poscar
@@ -24,12 +25,12 @@ class MyVaspCalculation(CalcJob):
         super(MyVaspCalculation, cls).define(spec)
 
         # define inputs
-        spec.input('parameters', valid_type=get_data_class('dict'), help='The VASP input parameters (INCAR).')
-        spec.input('structure', valid_type=(get_data_class('structure'), get_data_class('cif')), help='The input structure (POSCAR).')
-        spec.input('potential', valid_type=get_data_class('vasp_tmm.potcar'), help='The potentials (POTCAR).')
-        spec.input('kpoints', valid_type=get_data_class('array.kpoints'), help='The kpoints to use (KPOINTS).')
-        spec.input('charge_density', valid_type=get_data_class('vasp_tmm.chargedensity'), required=False, help='The charge density. (CHGCAR)')
-        spec.input('settings', valid_type=get_data_class('dict'), required=False, help='Additional parameters not related to VASP itself.')
+        spec.input('parameters', valid_type=Dict, help='The VASP input parameters (INCAR).')
+        spec.input('structure', valid_type=(StructureData, CifData), help='The input structure (POSCAR).')
+        spec.input('potential', valid_type=PotcarData, help='The potentials (POTCAR).')
+        spec.input('kpoints', valid_type=KpointsData, help='The kpoints to use (KPOINTS).')
+        spec.input('charge_density', valid_type=ChgcarData, required=False, help='The charge density. (CHGCAR)')
+        spec.input('settings', valid_type=Dict, required=False, help='Additional parameters not related to VASP itself.')
         spec.inputs['metadata']['options']['resources'].default = {
                 'num_machine': 1,
                 'num_mpiprocs_per_machine': 24,
@@ -43,7 +44,7 @@ class MyVaspCalculation(CalcJob):
         # define outputs
         # spec.output('structure', valid_type=get_data_class('structure'), required=False, help='The output structure (CONTCAR).')
         spec.output('chgcar',
-                    valid_type=get_data_class('vasp_tmm.chargedensity'),
+                    valid_type=ChgcarData,
                     required=False,
                     help='The output charge density CHGCAR file.')
         # #################################################
@@ -69,14 +70,15 @@ class MyVaspCalculation(CalcJob):
         poscar_content = structure_node.get_ase()
         write_vasp(outfile, poscar_content)
 
-    def write_kpoints(self, out_file):
+    def write_kpoints(self, out_file, poscar_path):
         """
         Write the KPOINTS.
         Opt1: get the content of the kpoints node ('array.kpoints') and write to out_file.
         Opt2: get automatic kpoints by setting k grid density and reading POSCAR
         """
-        structure = Poscar.from_file('POSCAR').structure
-        k_density = self.inputs.kpoints[0] # only one number
+        poscar = poscar_path
+        structure = Poscar.from_file(poscar).structure
+        k_density = self.inputs.kpoints.get_array('kpoints')[0] # only one number
         kpoints = Kpoints.automatic_density(structure, k_density)
         # kpoints_node = self.inputs.kpoints # kpoints mesh
         # kpoints_content = kpoints_node 
@@ -92,7 +94,7 @@ class MyVaspCalculation(CalcJob):
         """
         #pot_path = self._POT_PATH
         #potcar = PotcarIo(pot_path)
-        potential = self.input.potential.get_content() # define in PotcarData class
+        potential = self.inputs.potential.get_content() # define in PotcarData class
         with out_file.open('wb') as out:
             out.write(potential)
 
@@ -114,7 +116,7 @@ class MyVaspCalculation(CalcJob):
         self.write_incar(incar)
         self.write_poscar(structure)
         self.write_potcar(potentials)
-        self.write_kpoints(kpoints)
+        self.write_kpoints(kpoints, structure)
         
         codeinfo = datastructures.CodeInfo()
         codeinfo.uuid = self.inputs.code.uuid

@@ -1,0 +1,11 @@
+setup.py
+aiida_tmm/__init__.py
+aiida_tmm/calculations.py
+aiida_tmm/data.py
+aiida_tmm/parsers.py
+aiida_tmm/utils.py
+aiida_tmm.egg-info/PKG-INFO
+aiida_tmm.egg-info/SOURCES.txt
+aiida_tmm.egg-info/dependency_links.txt
+aiida_tmm.egg-info/entry_points.txt
+aiida_tmm.egg-info/top_level.txt

@@ -11,7 +11,7 @@ class PotcarIo(object):
 
     # _PATH = '/home/bz43nogu/PBE54/'
 
-    def __init__(self, structure=None, path):
+    def __init__(self, structure, path):
         """ structure can either be passed directly to the class or get as a node from database (added later) """
         self.structure = structure
         #if self.structure is None:
@@ -32,7 +32,7 @@ class PotcarIo(object):
         symbols = list(set(symbols))
         return self.sym_pot_map(symbols)
 
-    def sym_pot_map(symbols):
+    def sym_pot_map(self, symbols):
         """ 
         map symbols to the potential name 
         :param symbols: a list of symbols, eg. ['Na', 'Cl']
@@ -51,10 +51,10 @@ class PotcarIo(object):
 
         for sym in symbols:
             for j in potarr:
-            if sym in eval(j):
-                pot_name = sym + '_' + j[3:]
-            else:
-                pot_name = sym
+                if sym in eval(j):
+                    pot_name = sym + '_' + j[3:]
+                else:
+                    pot_name = sym
             pot_list.append(pot_name)
         return pot_list
 
@@ -66,7 +66,7 @@ class PotcarIo(object):
         potcars = []
 
         for sym in self.pot_list:
-            POTCAR_path = self.path + sym + 'POTCAR'
+            POTCAR_path = self.path + sym + '/POTCAR'
             with open(POTCAR_path, 'r', encoding='utf8') as potcar_fo:
                 potcar_string = re.compile(r'\n?(\s*.*?End of Dataset\n)', re.S).findall(potcar_fo.read())
             potcars.append(potcar_string)
