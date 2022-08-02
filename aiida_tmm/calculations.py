@@ -1,3 +1,5 @@
+from pathlib import Path
+
 from aiida.common import datastructures
 from aiida.engine import CalcJob
 from aiida.orm import SinglefileData, StructureData, CifData, Dict, KpointsData
@@ -32,12 +34,12 @@ class MyVaspCalculation(CalcJob):
         spec.input('charge_density', valid_type=ChgcarData, required=False, help='The charge density. (CHGCAR)')
         spec.input('settings', valid_type=Dict, required=False, help='Additional parameters not related to VASP itself.')
         spec.inputs['metadata']['options']['resources'].default = {
-                'num_machine': 1,
+                'num_machines': 1,
                 'num_mpiprocs_per_machine': 24,
                 }
         spec.inputs['metadata']['options']['max_wallclock_seconds'].default = 1800
         spec.inputs['metadata']['options']['account'].default = 'p0020160'
-        spec.inputs['metadata']['options']['max_memory_kb'].default = 43008000 # 1750*24*1024
+        spec.inputs['metadata']['options']['custom_scheduler_commands'].default = '#SBATCH --mem-per-cpu=3800' # 3800 MB per node
 
         spec.input('metadata.options.parser_name', default='vasp_tmm.vasp')
 
@@ -57,7 +59,7 @@ class MyVaspCalculation(CalcJob):
         Passes the parameter node (Dict) to pymatgen.io for parsing and write to out_files.
         :param outpu_file: absolute path of the object to write to
         """
-        parameters = self.inputs.parameter.get_dict()
+        parameters = self.inputs.parameters.get_dict()
         incar_content = Incar.from_dict(parameters)
         incar_content.write_file(out_file)
 
@@ -68,7 +70,7 @@ class MyVaspCalculation(CalcJob):
         """
         structure_node = self.inputs.structure # can be 'structure' or 'cif'
         poscar_content = structure_node.get_ase()
-        write_vasp(outfile, poscar_content)
+        write_vasp(out_file, poscar_content)
 
     def write_kpoints(self, out_file, poscar_path):
         """
@@ -95,7 +97,8 @@ class MyVaspCalculation(CalcJob):
         #pot_path = self._POT_PATH
         #potcar = PotcarIo(pot_path)
         potential = self.inputs.potential.get_content() # define in PotcarData class
-        with out_file.open('wb') as out:
+        path = Path(output_file)
+        with path.open('wb') as out:
             out.write(potential)
 
     def prepare_for_submission(self, folder):
@@ -119,7 +122,7 @@ class MyVaspCalculation(CalcJob):
         self.write_kpoints(kpoints, structure)
         
         codeinfo = datastructures.CodeInfo()
-        codeinfo.uuid = self.inputs.code.uuid
+        codeinfo.code_uuid = self.inputs.code.uuid
         codeinfo.code_pk = self.inputs.code.pk
         
         calcinfo = datastructures.CalcInfo()
@@ -128,8 +131,8 @@ class MyVaspCalculation(CalcJob):
         calcinfo.codes_info = [codeinfo]
         # Combine stdout and stderr into vasp_output.
         calcinfo.codes_info[0].stdout_name = self._VASP_OUTPUT
-        calainfo.codes_info[0].join_files = True
-        calcinfo.remote_copy_list = remote_copylist
+        calcinfo.codes_info[0].join_files = True
+        calcinfo.remote_copy_list = remote_copy_list
         calcinfo.local_copy_list = [] # These two lists are empty since input files already written in the folder
 
         return calcinfo

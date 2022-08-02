@@ -68,5 +68,6 @@ builder.parameters = incar
 builder.structure = structure
 builder.potential = potcar
 builder.kpoints = kpoints
+#builder.metadata.options.custom_scheduler_commands = '#SBATCH --mem-per-cpu=3800' # 3800 MB per node
 
 calc = submit(builder)
