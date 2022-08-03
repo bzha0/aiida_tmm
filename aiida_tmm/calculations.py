@@ -41,13 +41,14 @@ class MyVaspCalculation(CalcJob):
         spec.inputs['metadata']['options']['account'].default = 'p0020160'
         spec.inputs['metadata']['options']['custom_scheduler_commands'].default = '#SBATCH --mem-per-cpu=3800' # 3800 MB per node
         #spec.inputs['metadata']['options']['cmdline_parameters'].default = "srun"
-        
+        #spec.input('metadata.options.output_filename', valid_type=str)
+
         spec.input('metadata.options.parser_name', default='vasp_tmm.vasp')
 
         # define outputs
         # spec.output('structure', valid_type=get_data_class('structure'), required=False, help='The output structure (CONTCAR).')
         spec.output('chgcar',
-                    valid_type=ChgcarData,
+                    valid_type=(ChgcarData, SinglefileData),
                     required=False,
                     help='The output charge density CHGCAR file.')
         # #################################################

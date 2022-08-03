@@ -20,7 +20,7 @@ class VaspParser(Parser):
             return self.exit_codes.ERROR_MISSING_OUTPUT_FILES
 
         # add output files
-        self.logger.info('Parsing the outpu fiiles')
+        self.logger.info('Parsing the output files')
         with self.retrieved.open('CHGCAR', 'rb') as handle:
             output_node = SinglefileData(file=handle)
         self.out('chgcar', output_node) 

@@ -46,7 +46,7 @@ incar_dict = {
         'SIGMA': 0.01,
         'GGA': 'PS',
         'LREAL': False,
-        'LCHARG': False,
+        'LCHARG': True,
         'LWAVE': False,
         }
 incar = Dict(dict=incar_dict)

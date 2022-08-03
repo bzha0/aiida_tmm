@@ -8,7 +8,6 @@ from pathlib import Path
 from pymatgen.io.vasp import PotcarSingle
 from ase.io.vasp import read_vasp
 from aiida.orm import Data, SinglefileData
-from aiida_vasp.utils.aiida_utils import get_data_node
 
 class PotcarData(SinglefileData):
     """
