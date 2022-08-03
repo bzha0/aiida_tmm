@@ -1,7 +1,7 @@
 """ Launch an scf calculation using 'vasp_tmm' plugin """
 import numpy as np
 
-from aiida.orm import Code
+from aiida.orm import Code, Computer
 from aiida.plugins import DataFactory 
 from aiida.engine import submit
 from aiida_tmm.utils import PotcarIo

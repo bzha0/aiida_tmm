@@ -1,5 +1,6 @@
 import re
 import io
+import subprocess
 
 from aiida.orm import StructureData
 
@@ -63,14 +64,20 @@ class PotcarIo(object):
         Reads potential files from your local path.
         :param path: path on your local computer that stores all the potential folders
         """
-        potcars = []
+        #potcars = []
+        input_list = []
 
         for sym in self.pot_list:
             POTCAR_path = self.path + sym + '/POTCAR'
-            with open(POTCAR_path, 'r', encoding='utf8') as potcar_fo:
-                potcar_string = re.compile(r'\n?(\s*.*?End of Dataset\n)', re.S).findall(potcar_fo.read())
-            potcars.append(potcar_string)
+            input_list.append(POTCAR_path)
+            #with open(POTCAR_path, 'r', encoding='utf8') as potcar_fo:
+                #potcar_string = potcar_fo.readlines()
+            #    potcar_string = re.compile(r'\n?(\s*.*?End of Dataset\n)', re.S).findall(potcar_fo.read())
+            #potcars.append(potcar_string)
 
-        potcar = "\n".join(str(pot) for pot in potcars)
-        potcar_obj = io.BytesIO(str.encode(potcar)) 
+        my_cmd = ['cat'] + input_list
+        potcar_obj = subprocess.check_output(my_cmd, stderr=subprocess.DEVNULL)
+        #potcar = "\n".join([str(pot).strip("\n") for pot in potcars]) + "\n"
+        #potcar_obj = io.BytesIO(str.encode(potcar))
+        potcar_obj = io.BytesIO(potcar_obj)
         return potcar_obj # potcar string to be passed to PotcarData

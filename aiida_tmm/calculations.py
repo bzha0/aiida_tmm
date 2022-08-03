@@ -40,7 +40,8 @@ class MyVaspCalculation(CalcJob):
         spec.inputs['metadata']['options']['max_wallclock_seconds'].default = 1800
         spec.inputs['metadata']['options']['account'].default = 'p0020160'
         spec.inputs['metadata']['options']['custom_scheduler_commands'].default = '#SBATCH --mem-per-cpu=3800' # 3800 MB per node
-
+        #spec.inputs['metadata']['options']['cmdline_parameters'].default = "srun"
+        
         spec.input('metadata.options.parser_name', default='vasp_tmm.vasp')
 
         # define outputs
@@ -97,8 +98,9 @@ class MyVaspCalculation(CalcJob):
         #pot_path = self._POT_PATH
         #potcar = PotcarIo(pot_path)
         potential = self.inputs.potential.get_content() # define in PotcarData class
-        path = Path(output_file)
-        with path.open('wb') as out:
+        #potential = potential.encode('utf-8')
+        path = Path(out_file)
+        with path.open('w', encoding='utf-8') as out:
             out.write(potential)
 
     def prepare_for_submission(self, folder):
@@ -122,6 +124,7 @@ class MyVaspCalculation(CalcJob):
         self.write_kpoints(kpoints, structure)
         
         codeinfo = datastructures.CodeInfo()
+        codeinfo.withmpi = True
         codeinfo.code_uuid = self.inputs.code.uuid
         codeinfo.code_pk = self.inputs.code.pk
         
@@ -129,6 +132,7 @@ class MyVaspCalculation(CalcJob):
         calcinfo.uuid = self.uuid
         calcinfo.retrieve_list = self._SCF_RETRIEVE_LIST # retrieve only CHGCR for testing
         calcinfo.codes_info = [codeinfo]
+        calcinfo.codes_info[0].prepend_cmdline_params = ["srun", "-k"]
         # Combine stdout and stderr into vasp_output.
         calcinfo.codes_info[0].stdout_name = self._VASP_OUTPUT
         calcinfo.codes_info[0].join_files = True
