@@ -2,7 +2,7 @@ from pathlib import Path
 
 from aiida.common import datastructures
 from aiida.engine import CalcJob
-from aiida.orm import SinglefileData, StructureData, CifData, Dict, KpointsData
+from aiida.orm import ArrayData, SinglefileData, StructureData, CifData, Dict, KpointsData
 from aiida.plugins import DataFactory
 #from aiida_tmm.utils import PotcarIo 
 from aiida_tmm.data import PotcarData, ChgcarData, WavecarData
@@ -17,7 +17,7 @@ class MyVaspCalculation(CalcJob):
     
     _VASP_OUTPUT = 'vasp_output'
     _RETRIEVE_LIST = ['CONTCAR', 'OUTCAR', 'vasprun.xml', 'EIGENVAL', 'DOSCAR', 'CHGCAR', _VASP_OUTPUT]
-    _SCF_RETRIEVE_LIST = ['CHGCAR'] # just for testing
+    _DOS_RETRIEVE_LIST = ['CHGCAR', 'DOSCAR'] # just for testing
     #_POT_PATH = '/home/bz43nogu/PBE54/'
 
     @classmethod
@@ -28,10 +28,11 @@ class MyVaspCalculation(CalcJob):
 
         # define inputs
         spec.input('parameters', valid_type=Dict, help='The VASP input parameters (INCAR).')
+        #spec.input_namespace('structure', valid_type=(StructureData, CifData), help='The input structure (POSCAR).', dynamic=True)
         spec.input('structure', valid_type=(StructureData, CifData), help='The input structure (POSCAR).')
         spec.input('potential', valid_type=PotcarData, help='The potentials (POTCAR).')
         spec.input('kpoints', valid_type=KpointsData, help='The kpoints to use (KPOINTS).')
-        spec.input('charge_density', valid_type=ChgcarData, required=False, help='The charge density. (CHGCAR)')
+        spec.input('charge_density', valid_type=(ChgcarData, SinglefileData), required=False, help='The charge density. (CHGCAR)')
         spec.input('settings', valid_type=Dict, required=False, help='Additional parameters not related to VASP itself.')
         spec.inputs['metadata']['options']['resources'].default = {
                 'num_machines': 1,
@@ -43,7 +44,7 @@ class MyVaspCalculation(CalcJob):
         #spec.inputs['metadata']['options']['cmdline_parameters'].default = "srun"
         #spec.input('metadata.options.output_filename', valid_type=str)
 
-        spec.input('metadata.options.parser_name', default='vasp_tmm.vasp')
+        spec.input('metadata.options.parser_name', default='vasp_tmm.scf') # or vasp_tmm.dos
 
         # define outputs
         # spec.output('structure', valid_type=get_data_class('structure'), required=False, help='The output structure (CONTCAR).')
@@ -51,6 +52,7 @@ class MyVaspCalculation(CalcJob):
                     valid_type=(ChgcarData, SinglefileData),
                     required=False,
                     help='The output charge density CHGCAR file.')
+        spec.output('dos', valid_type=ArrayData, required=False, help='The outpu dos data.')
         # #################################################
         # Complete outputs will be added later.
         # #################################################
@@ -69,10 +71,11 @@ class MyVaspCalculation(CalcJob):
         """
         Write the POSCAR.
         Get the content of the structure node ('structure' or 'cif') and write to out_file.
-        """
-        structure_node = self.inputs.structure # can be 'structure' or 'cif'
+        """ 
+        structure_node = self.inputs.structure # 'structure' or 'cif' type
         poscar_content = structure_node.get_ase()
         write_vasp(out_file, poscar_content)
+
 
     def write_kpoints(self, out_file, poscar_path):
         """
@@ -83,7 +86,7 @@ class MyVaspCalculation(CalcJob):
         poscar = poscar_path
         structure = Poscar.from_file(poscar).structure
         k_density = self.inputs.kpoints.get_array('kpoints')[0] # only one number
-        kpoints = Kpoints.automatic_density(structure, k_density)
+        kpoints = Kpoints.automatic_density(structure, k_density, force_gamma=True) # gamma-centered mesh
         # kpoints_node = self.inputs.kpoints # kpoints mesh
         # kpoints_content = kpoints_node 
         kpoints.write_file(out_file)
@@ -104,6 +107,16 @@ class MyVaspCalculation(CalcJob):
         with path.open('w', encoding='utf-8') as out:
             out.write(potential)
 
+    #def write_chgcar(self, out_file):
+    #    """
+    #    Write the CHGCAR for dos calculations.
+    #    """
+    #    charge_density = self.inputs.charge_density.get_content() # clone from outputs.chgcar of scf #calculations
+    #    path = Path(out_file)
+    #    with path.open('w', encoding='utf-8') as out:
+    #        out.write(charge_density)
+    
+
     def prepare_for_submission(self, folder):
         """
         Prepare the four VASP input files.
@@ -116,6 +129,7 @@ class MyVaspCalculation(CalcJob):
         structure = folder.get_abs_path('POSCAR')
         potentials = folder.get_abs_path('POTCAR')
         kpoints = folder.get_abs_path('KPOINTS')
+        #chgcar = folder.get_abs_path('CHGCAR')
 
         remote_copy_list = []
 
@@ -123,6 +137,7 @@ class MyVaspCalculation(CalcJob):
         self.write_poscar(structure)
         self.write_potcar(potentials)
         self.write_kpoints(kpoints, structure)
+        #self.write_chgcar(chgcar)
         
         codeinfo = datastructures.CodeInfo()
         codeinfo.withmpi = True
@@ -131,7 +146,7 @@ class MyVaspCalculation(CalcJob):
         
         calcinfo = datastructures.CalcInfo()
         calcinfo.uuid = self.uuid
-        calcinfo.retrieve_list = self._SCF_RETRIEVE_LIST # retrieve only CHGCR for testing
+        calcinfo.retrieve_list = self._DOS_RETRIEVE_LIST # retrieve only CHGCR for testing
         calcinfo.codes_info = [codeinfo]
         calcinfo.codes_info[0].prepend_cmdline_params = ["srun", "-k"]
         # Combine stdout and stderr into vasp_output.
@@ -139,6 +154,24 @@ class MyVaspCalculation(CalcJob):
         calcinfo.codes_info[0].join_files = True
         calcinfo.remote_copy_list = remote_copy_list
         calcinfo.local_copy_list = [] # These two lists are empty since input files already written in the folder
+        self.write_additional(folder, calcinfo)
 
         return calcinfo
+
+    def write_additional(self, folder, calcinfo):
+        """ write CHGCAR if needed """
+        if self._need_chgcar():
+            charge_density = self.inputs.charge_density
+            calcinfo.local_copy_list.append((charge_density.uuid, charge_density.filename, 'CHGCAR'))
+
+    def _need_chgcar(self):
+        """ get the `ICHARG` key in the self.input.parameters.
+        If ICHARG = 1 or 11, return True"""
+        parameters = self.inputs.parameters.get_dict()
+        try:
+            parameters['ICHARG']
+            icharg = parameters['ICHARG']
+            return bool(icharg in [1, 11])
+        except:
+            return False
 
