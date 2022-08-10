@@ -4,8 +4,11 @@ import numpy as np
 from aiida.orm import Code, Computer
 from aiida.plugins import DataFactory, WorkflowFactory 
 from aiida.engine import submit
+from aiida.manage.configuration import load_profile
 from aiida.common.extendeddicts import AttributeDict
 from aiida_tmm.utils import PotcarIo
+
+load_profile()
 
 # Set POSCAR file
 StructureData = DataFactory('structure')
@@ -48,7 +51,7 @@ incar_scf.store()
 # Set KPOINTS file, k density = 2.5 1/AA^-3
 KpointsData = DataFactory('array.kpoints')
 kpoints = KpointsData()
-kpoints.set_array('kpoints', np.array([2.5]))
+kpoints.set_array('kpoints', np.array([50.0]))
 kpoints.store()
 
 # Set INCAR file for dos
@@ -78,7 +81,7 @@ incar_dos.store()
 
 workchain = WorkflowFactory('vasp_tmm.dos')
 #builder = workchain.get_builder()
-code_string = 'vasp_tmm@localhost'
+code_string = 'vasp@localhost'
 code = Code.get_from_string(code_string)
 inputs = AttributeDict()
 inputs.code = code

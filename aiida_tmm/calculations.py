@@ -2,7 +2,7 @@ from pathlib import Path
 
 from aiida.common import datastructures
 from aiida.engine import CalcJob
-from aiida.orm import ArrayData, SinglefileData, StructureData, CifData, Dict, KpointsData
+from aiida.orm import ArrayData, SinglefileData, StructureData, CifData, Dict, KpointsData, Float
 from aiida.plugins import DataFactory
 #from aiida_tmm.utils import PotcarIo 
 from aiida_tmm.data import PotcarData, ChgcarData, WavecarData
@@ -48,11 +48,18 @@ class MyVaspCalculation(CalcJob):
 
         # define outputs
         # spec.output('structure', valid_type=get_data_class('structure'), required=False, help='The output structure (CONTCAR).')
+        spec.output('E_fermi', 
+                valid_type=Float, 
+                required=False, 
+                help='The Fermi energy')
         spec.output('chgcar',
                     valid_type=(ChgcarData, SinglefileData),
                     required=False,
                     help='The output charge density CHGCAR file.')
-        spec.output('dos', valid_type=ArrayData, required=False, help='The outpu dos data.')
+        spec.output('dos', 
+                valid_type=ArrayData, 
+                required=False, 
+                help='The outpu dos data.')
         # #################################################
         # Complete outputs will be added later.
         # #################################################
@@ -146,7 +153,7 @@ class MyVaspCalculation(CalcJob):
         
         calcinfo = datastructures.CalcInfo()
         calcinfo.uuid = self.uuid
-        calcinfo.retrieve_list = self._DOS_RETRIEVE_LIST # retrieve only CHGCR for testing
+        calcinfo.retrieve_list = self._RETRIEVE_LIST
         calcinfo.codes_info = [codeinfo]
         calcinfo.codes_info[0].prepend_cmdline_params = ["srun", "-k"]
         # Combine stdout and stderr into vasp_output.

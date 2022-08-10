@@ -72,7 +72,7 @@ kpoints.store()
 #######################################################
 # Prepare the calculation
 #######################################################
-code_string = 'vasp_tmm@localhost'
+code_string = 'vasp@localhost'
 code = Code.get_from_string(code_string)
 #builder = code.get_builder()
 #builder.parameters = incar
