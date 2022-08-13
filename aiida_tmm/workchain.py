@@ -37,12 +37,23 @@ class DosWorkChain(WorkChain):
                 cls.init_dos,
                 cls.run_dos,
                 cls.verify_workchain,
-                cls.results,
+                cls.results
                 )
         #spec.expose_outputs(cls._vasp_process)
         spec.output('density_of_states', valid_type=ArrayData, required=False)
         spec.exit_code(0, 'NO_ERROR', message='everything is going well')
-        spec.exit_code(400, 'ERROR_CALCULATION_FAILED', message='The current step failed!')
+        spec.exit_code(400,
+                'ERROR_NOT_CONVERGED',
+                message='the self-consistent is not converged, restart and continue the calculation')
+        spec.exit_code(401,
+                'ERROR_COULD_NOT_FINISH',
+                message='something wrong with the self-consistent calculation, please inspect the vasp_output')
+        spec.exit_code(402,
+                'ERROR_UNKNOWN',
+                message='some errors detected in the dos workchain')
+        spec.exit_code(403,
+                'ERROR_NO_DOS_FOUND',
+                message='fail to extract dos array from DOSCAR')
 
     def initialize(self):
         """initialize the context """
@@ -169,14 +180,18 @@ class DosWorkChain(WorkChain):
         """ return non-zero exit code if the current workchain failed """
         try:
             workchain = self.ctx['scf']
+            if workchain.is_finished_ok:
+                self.ctx.exit_code = self.exit_codes.NO_ERROR
+            elif self.ctx['scf'].exit_status == 500:
+                self.ctx.exit_code = self.exit_codes.ERROR_NOT_CONVERGED
+            elif self.ctx['scf'].exit_status == 501:
+                self.ctx.exit_code = self.exit_codes.ERROR_COULD_NOT_FINISH
         except:
             workchain = self.ctx['dos']
-
-        if workchain.is_finished_ok:
-            self.ctx.exit_code = self.exit_codes.NO_ERROR
-
-        else:
-            self.ctx.exit_code = self.exit_codes.ERROR_CALCULATION_FAILED
+            if workchain.is_finished_ok:
+                self.ctx.exit_code = self.exit_codes.NO_ERROR
+            else:
+                self.ctx.exit_code = self.ctx['dos'].exit_status.ERROR_UNKNOWN
         return self.ctx.exit_code
 
     def results(self):
@@ -188,3 +203,25 @@ class DosWorkChain(WorkChain):
         density_of_states = self.ctx['dos'].outputs['dos'] # ArrayData node
         self.out('density_of_states', density_of_states)
         self.report('finish density of states calculation!')
+
+        # make sure output is not None
+        dos = self.ctx['dos'].outputs.dos.get_array('dos_array')
+        if dos[0] is None:
+            self.ctx.exit_code = self.exit_codes.ERROR_NO_DOS_FOUND
+            return self.ctx.exit_code
+
+    #def group_results(self):
+    #    """ add the WorkChainNode to a specific group 
+    #    based on the exit_status """
+    #    if self.ctx.exit_code == 0:
+    #        group = load_group('dos_done')
+    #        group.add_nodes(calc)
+    #    elif self.ctx.exit_code == 400:
+    #        group = load_group('scf_not_converged')
+    #        group.add_nodes(calc)
+    #    elif calc.exit_status == 401:
+    #        group = load_group('scf_with_error')
+    #        group.add_nodes(calc)
+    #    else:
+    #        group = load_group('dos_unfinished')
+    #        group.add_nodes(calc)

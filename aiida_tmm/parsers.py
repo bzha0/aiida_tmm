@@ -5,6 +5,8 @@ from aiida.orm import SinglefileData, ArrayData, Float
 from aiida.parsers.parser import Parser
 from aiida.plugins import CalculationFactory
 
+from parsevasp.outcar import Outcar
+
 Vaspcalculation = CalculationFactory('vasp_tmm.vasp')
 
 class ScfParser(Parser):
@@ -13,8 +15,16 @@ class ScfParser(Parser):
     """
     def parse(self, **kwargs):
         """ :return ExitCode: non-zero exit code, if parsing fails """
+
         # check that folder content is as expected
         files_retrieved = self.retrieved.list_object_names()
+
+        # parser OUTCAR file to check if calculation finished or converged
+        run_status = self.parse_outcar(files_retrieved)
+        if run_status['finished'] and not run_status['electronic_converged']:
+            return self.exit_codes.ERROR_NOT_CONVERGED
+        elif not run_status['finished']:
+            return self.exit_codes.ERROR_COULD_NOT_FINISH
 
         # parser DOSCAR for Fermi energy
         efermi = self.parse_Efermi(files_retrieved)
@@ -25,6 +35,16 @@ class ScfParser(Parser):
             return ExitCode(0)
         else:
             return self.exit_codes.ERROR_MISSING_OUTPUT_FILES
+
+    def parse_outcar(self, files_retrieved):
+        files_expected = ['OUTCAR']
+        if not set(files_expected) <= set(files_retrieved):
+            self.logger.error(f"Found files '{files_retrieved}', expected to find '{files_expected}'")
+            return False
+        with self.retrieved.open('OUTCAR', 'r') as handle:
+            outcar_parser = Outcar(file_handler=handle)
+            run_status = outcar_parser.get_run_status()
+            return run_status
 
     def parse_Efermi(self, files_retrieved):
         files_expected = ['DOSCAR']

@@ -63,6 +63,12 @@ class MyVaspCalculation(CalcJob):
         # #################################################
         # Complete outputs will be added later.
         # #################################################
+        spec.exit_code(500,
+                'ERROR_NOT_CONVERGED', 
+                message='the self-consistent is not converged, restart and continue the calculation')
+        spec.exit_code(501,
+                'ERROR_COULD_NOT_FINISH',
+                message='something wrong with the self-consistent calculation, please inspect the vasp_output')
 
     def write_incar(self, out_file):
         """

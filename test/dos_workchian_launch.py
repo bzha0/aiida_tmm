@@ -1,5 +1,6 @@
 """ Launch a dos workchain using 'vasp_tmm' plugin """
 import numpy as np
+from pymatgen.ext.matproj import MPRester
 
 from aiida.orm import Code, Computer
 from aiida.plugins import DataFactory, WorkflowFactory 
@@ -12,13 +13,9 @@ load_profile()
 
 # Set POSCAR file
 StructureData = DataFactory('structure')
-alat = 3.9
-lattice = np.array([[.5, .5, 0], [0, .5, .5], [.5, 0, .5]]) * alat
-structure = StructureData(cell=lattice)
-positions = [[0.0, 0.0, 0.0]]
-for pos_direct in positions:
-    pos_cartesian = np.dot(pos_direct, lattice)
-    structure.append_atom(position=pos_cartesian, symbols='Si')
+with MPRester('Kthv8UMOBNI07gXx') as m:
+    structure = m.get_structure_by_material_id("mp-1007855")
+structure = StructureData(pymatgen=structure)
 structure.store()
 
 # Set POTCAR file
@@ -32,19 +29,26 @@ potcar.store()
 # Set INCAR file for scf
 Dict_scf = DataFactory('dict')
 incar_dict = {
-        'SYSTEM': 'test',
-        'PREC': 'Accurate',
-        'NELMIN': 5,
-        'NELM': 100,
-        'ENCUT': 240,
-        'IALGO': 38,
-        'ISMEAR': 0,
-        'SIGMA': 0.01,
-        'GGA': 'PS',
-        'LREAL': False,
-        'LCHARG': True,
+        'System': 'Fex',
         'LWAVE': False,
-        }
+        'LCHARG': True,
+        'LVTOT': False,
+        'EDIFF': 1e-06,
+        'EDIFFG': -0.001,
+        'ENCUT': 500,
+        'NELM': 300,
+        'IBRION': -1,
+        'PREC': 'Accurate',
+        'ISTART': 0,
+        'ISMEAR': 1,
+        'SIGMA': 0.1,
+        'AMIX': 0.1,
+        'BMIX': 0.01,
+        'AMIX_MAG': 0.2,
+        'BMIZ_MAG': 0.02,
+        'ALGO': 'Normal',
+        'LREAL': 'Auto'
+         }
 incar_scf = Dict_scf(dict=incar_dict)
 incar_scf.store()
 
@@ -57,16 +61,23 @@ kpoints.store()
 # Set INCAR file for dos
 Dict_scf = DataFactory('dict')
 incar_dict = {
-        'SYSTEM': 'test',
-        'PREC': 'Accurate',
-        'ENCUT': 240,
-        'IALGO': 38,
-        'ISMEAR': -5,
-        'ICHARG': 11,
-        'GGA': 'PS',
-        'LREAL': False,
-        'LCHARG': False,
+        'System': 'Fex',
         'LWAVE': False,
+        'LCHARG': True,
+        'LVTOT': False,
+        'EDIFF': 1e-06,
+        'EDIFFG': -0.001,
+        'ENCUT': 500,
+        'NELM': 300,
+        'IBRION': -1,
+        'PREC': 'Accurate',
+        'ISTART': 0,
+        'ISMEAR': -5,
+        'SIGMA': 0.1,
+        'ALGO': 'Normal',
+        'ICHARG': 11,
+        'NEDOS': 512,
+        'LREAL': 'Auto'
         }
 incar_dos = Dict_scf(dict=incar_dict)
 incar_dos.store()
@@ -94,3 +105,23 @@ inputs.kpoints = kpoints
 #builder.metadata.options.custom_scheduler_commands = '#SBATCH --mem-per-cpu=3800' # 3800 MB per node
 
 calc = submit(workchain, **inputs)
+group = load_group('dos_calc')
+group.add_nodes(calc)
+
+#while True:
+#    if calc.is_terminated:
+#        break
+
+# group the worchain node based on the exit code
+#if calc.exit_status == 0:
+#    group = load_group('dos_done')
+#    group.add_nodes(calc)
+#elif calc.exit_status == 400:
+#    group = load_group('scf_not_converged')
+#    group.add_nodes(calc)
+#elif calc.exit_status == 401:
+#    group = load_group('scf_with_error')
+#    group.add_nodes(calc)
+#else:
+#    group = load_group('dos_unfinished')
+#    group.add_nodes(calc)
