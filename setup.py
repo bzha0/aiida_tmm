@@ -21,7 +21,11 @@ setup(
                 "vasp_tmm.wavefun = aiida_tmm.data:WavecarData"
                 ],
             'aiida.parsers': [
-                "vasp_tmm.vasp = aiida_tmm.parsers:VaspParser"
+                "vasp_tmm.scf = aiida_tmm.parsers:ScfParser",
+                "vasp_tmm.dos = aiida_tmm.parsers:DosParser"
                 ],
+            'aiida.workflows':[
+                "vasp_tmm.dos = aiida_tmm.workchain:DosWorkChain"
+                ]
             }
         )

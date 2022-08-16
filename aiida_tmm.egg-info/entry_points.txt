@@ -7,4 +7,8 @@ vasp_tmm.potcar = aiida_tmm.data:PotcarData
 vasp_tmm.wavefun = aiida_tmm.data:WavecarData
 
 [aiida.parsers]
-vasp_tmm.vasp = aiida_tmm.parsers:VaspParser
+vasp_tmm.dos = aiida_tmm.parsers:DosParser
+vasp_tmm.scf = aiida_tmm.parsers:ScfParser
+
+[aiida.workflows]
+vasp_tmm.dos = aiida_tmm.workchain:DosWorkChain

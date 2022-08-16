@@ -30,7 +30,7 @@ class PotcarIo(object):
         """ Get species from strucuture node.
         :return symbols: a list"""
         symbols = self.structure.get_ase().get_chemical_symbols()
-        symbols = list(set(symbols))
+        symbols = list(dict.fromkeys(symbols))
         return self.sym_pot_map(symbols)
 
     def sym_pot_map(self, symbols):
@@ -46,17 +46,20 @@ class PotcarIo(object):
         pot2=[]
         pot3=['Yb', 'Ce', 'Dy', 'Er', 'Eu', 'Gd', 'Ho', 'Lu', 'Nd', 'Pm', 'Pr', 'Sm', 'Tb', 'Tm']
 
-        potarr=['pots','potsv','potpv','potd','pot2','pot3']
-
+        potarr=[pots, potsv, potpv, potd, pot2, pot3]
+        potname=['pots', 'potsv', 'potpv', 'potd', 'pot2', 'pot3']
         pot_list = []
+        count = False
 
         for sym in symbols:
-            for j in potarr:
-                if sym in eval(j):
-                    pot_name = sym + '_' + j[3:]
-                else:
-                    pot_name = sym
+            for i, j in enumerate(potarr):
+                if sym in j:
+                    pot_name = sym + '_' + potname[i][3:]
+                    count = True
+            if not count:
+                pot_name = sym
             pot_list.append(pot_name)
+            count = False
         return pot_list
 
     def get_potcar_obj(self):
