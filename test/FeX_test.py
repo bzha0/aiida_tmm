@@ -14,7 +14,7 @@ load_profile()
 
 data = pd.read_csv('mpid_full.csv')
 
-for mpid in data['mpid']:
+for mpid in data['mpid'][0:100]:
     # Set POSCAR file
     StructureData = DataFactory('structure')
     with MPRester('Kthv8UMOBNI07gXx') as m:
@@ -56,10 +56,10 @@ for mpid in data['mpid']:
     incar_scf = Dict_scf(dict=incar_dict)
     incar_scf.store()
 
-    # Set KPOINTS file, k density = 2.5 1/AA^-3
+    # Set KPOINTS file for scf 
     KpointsData = DataFactory('array.kpoints')
     kpoints = KpointsData()
-    kpoints.set_array('kpoints', np.array([50.0]))
+    kpoints.set_array('kpoints', np.array([50.0, 50.0, 50.0]))
     kpoints.store()
 
     # Set INCAR file for dos

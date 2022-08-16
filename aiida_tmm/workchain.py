@@ -49,9 +49,12 @@ class DosWorkChain(WorkChain):
                 'ERROR_COULD_NOT_FINISH',
                 message='something wrong with the self-consistent calculation, please inspect the vasp_output')
         spec.exit_code(402,
+                'ERROR_MAX_STEP_REACHED',
+                message='reach maximum electron iterations')
+        spec.exit_code(403,
                 'ERROR_UNKNOWN',
                 message='some errors detected in the dos workchain')
-        spec.exit_code(403,
+        spec.exit_code(404,
                 'ERROR_NO_DOS_FOUND',
                 message='fail to extract dos array from DOSCAR')
 
@@ -121,6 +124,9 @@ class DosWorkChain(WorkChain):
         ## UPDATE self.inputs.dos_incar based on fermi energy obtained from scf calculation
         incar = self.update_incar()
         self.ctx.inputs.parameters = incar
+        # update kpoints
+        kpoints = self.get_dos_kpoints()
+        self.ctx.inputs.kpoints = kpoints
 
     def update_incar(self):
         """ add the tags 'EMAX', 'EMIN' to INCAR """
@@ -132,6 +138,13 @@ class DosWorkChain(WorkChain):
         incar['EMAX'] = emax
         incar = Dict(incar)
         return incar
+
+    def get_dos_kpoints(self):
+        """ set KPOINTS with density 100 1/AA for dos"""
+        KpointsData = DataFactory('array.kpoints')
+        kpoints = KpointsData()
+        kpoints.set_array('kpoints', np.array([100.0, 100.0, 100.0]))
+        return kpoints
 
     #def run_dos(self):
     #    self.repost('run_dos')
@@ -186,6 +199,8 @@ class DosWorkChain(WorkChain):
                 self.ctx.exit_code = self.exit_codes.ERROR_NOT_CONVERGED
             elif self.ctx['scf'].exit_status == 501:
                 self.ctx.exit_code = self.exit_codes.ERROR_COULD_NOT_FINISH
+            elif self.ctx['scf'].exit_status == 502:
+                self.ctx.exit_code = self.exit_codes.ERROR_MAX_STEP_REACHED
         except:
             workchain = self.ctx['dos']
             if workchain.is_finished_ok:
@@ -206,7 +221,7 @@ class DosWorkChain(WorkChain):
 
         # make sure output is not None
         dos = self.ctx['dos'].outputs.dos.get_array('dos_array')
-        if dos[0] is None:
+        if len(dos[0]) == 0:
             self.ctx.exit_code = self.exit_codes.ERROR_NO_DOS_FOUND
             return self.ctx.exit_code
 

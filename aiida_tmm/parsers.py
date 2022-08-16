@@ -16,15 +16,19 @@ class ScfParser(Parser):
     def parse(self, **kwargs):
         """ :return ExitCode: non-zero exit code, if parsing fails """
 
-        # check that folder content is as expected
+        # check that foldier content is as expected
         files_retrieved = self.retrieved.list_object_names()
 
         # parser OUTCAR file to check if calculation finished or converged
         run_status = self.parse_outcar(files_retrieved)
         if run_status['finished'] and not run_status['electronic_converged']:
-            return self.exit_codes.ERROR_NOT_CONVERGED
+            return self.exit_codes.ERROR_MAX_STEP_REACHED
         elif not run_status['finished']:
-            return self.exit_codes.ERROR_COULD_NOT_FINISH
+            # check vasp_output, if it is caused by time limit
+            if self.time_limit():
+                return self.exit_codes.ERROR_NOT_CONVERGED
+            else:
+                return self.exit_codes.ERROR_COULD_NOT_FINISH
 
         # parser DOSCAR for Fermi energy
         efermi = self.parse_Efermi(files_retrieved)
@@ -45,6 +49,14 @@ class ScfParser(Parser):
             outcar_parser = Outcar(file_handler=handle)
             run_status = outcar_parser.get_run_status()
             return run_status
+
+    def time_limit(self):
+        time_limit = False
+        with self.retrieved.open('vasp_output', 'r') as handle:
+            for line in handle.readlines():
+                if 'DUE TO TIME LIMIT' in line:
+                    time_limit = True
+        return time_limit
 
     def parse_Efermi(self, files_retrieved):
         files_expected = ['DOSCAR']

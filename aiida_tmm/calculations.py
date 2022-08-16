@@ -35,7 +35,7 @@ class MyVaspCalculation(CalcJob):
         spec.input('charge_density', valid_type=(ChgcarData, SinglefileData), required=False, help='The charge density. (CHGCAR)')
         spec.input('settings', valid_type=Dict, required=False, help='Additional parameters not related to VASP itself.')
         spec.inputs['metadata']['options']['resources'].default = {
-                'num_machines': 1,
+                'num_machines': 2,
                 'num_mpiprocs_per_machine': 24,
                 }
         spec.inputs['metadata']['options']['max_wallclock_seconds'].default = 1800
@@ -69,6 +69,9 @@ class MyVaspCalculation(CalcJob):
         spec.exit_code(501,
                 'ERROR_COULD_NOT_FINISH',
                 message='something wrong with the self-consistent calculation, please inspect the vasp_output')
+        spec.exit_code(502,
+                'ERROR_MAX_STEP_REACHED',
+                message='reach maximum electron iterations')
 
     def write_incar(self, out_file):
         """
@@ -98,8 +101,8 @@ class MyVaspCalculation(CalcJob):
         """
         poscar = poscar_path
         structure = Poscar.from_file(poscar).structure
-        k_density = self.inputs.kpoints.get_array('kpoints')[0] # only one number
-        kpoints = Kpoints.automatic_density(structure, k_density, force_gamma=True) # gamma-centered mesh
+        k_density = self.inputs.kpoints.get_array('kpoints') # e.g. [50, 50, 50]
+        kpoints = Kpoints.automatic_density_by_lengths(structure, k_density, force_gamma=True) # gamma-centered mesh
         # kpoints_node = self.inputs.kpoints # kpoints mesh
         # kpoints_content = kpoints_node 
         kpoints.write_file(out_file)

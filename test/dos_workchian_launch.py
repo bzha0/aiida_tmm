@@ -14,7 +14,7 @@ load_profile()
 # Set POSCAR file
 StructureData = DataFactory('structure')
 with MPRester('Kthv8UMOBNI07gXx') as m:
-    structure = m.get_structure_by_material_id("mp-1007855")
+    structure = m.get_structure_by_material_id("mp-685128")
 structure = StructureData(pymatgen=structure)
 structure.store()
 
@@ -55,7 +55,7 @@ incar_scf.store()
 # Set KPOINTS file, k density = 2.5 1/AA^-3
 KpointsData = DataFactory('array.kpoints')
 kpoints = KpointsData()
-kpoints.set_array('kpoints', np.array([50.0]))
+kpoints.set_array('kpoints', np.array([50.0, 50.0, 50.0]))
 kpoints.store()
 
 # Set INCAR file for dos
