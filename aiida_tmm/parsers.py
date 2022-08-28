@@ -106,11 +106,14 @@ class DosParser(Parser):
         
         # add output files
         self.logger.info('Parsing the output files')
-        output = self._parse_doscar() # dos array
-        output_node = ArrayData()
-        output_node.set_array('dos_array', output)
-        self.out('dos', output_node)
-        return ExitCode(0)
+        try:
+            output = self._parse_doscar() # dos array
+            output_node = ArrayData()
+            output_node.set_array('dos_array', output)
+            self.out('dos', output_node)
+            return ExitCode(0)
+        except:
+            return self.exit_codes.ERROR_UNKNOWN
 
     def _parse_doscar(self):
         energy = []

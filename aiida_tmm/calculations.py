@@ -72,6 +72,13 @@ class MyVaspCalculation(CalcJob):
         spec.exit_code(502,
                 'ERROR_MAX_STEP_REACHED',
                 message='reach maximum electron iterations')
+        spec.exit_code(503,
+                'ERROR_MISSING_OUTPUT_FILES',
+                message='Calculation did not produce all expected output files.')
+        spec.exit_code(504,
+                'ERROR_UNKNOWN',
+                message='some errors detected in the dos calculation')
+
 
     def write_incar(self, out_file):
         """
