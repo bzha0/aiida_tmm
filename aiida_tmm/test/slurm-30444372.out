@@ -1,0 +1,34 @@
+pg_ctl: PID file "/home/bz43nogu/mylocal_db/postmaster.pid" does not exist
+Is server running?
+warning: the VM is running with native name encoding of latin1 which may cause Elixir to malfunction as it expects utf8. Please ensure your locale is set to UTF-8 (which can be verified by running "locale" in your shell)
+Stopping and halting node rabbit@mpsc0161 ...
+Error: unable to perform an operation on node 'rabbit@mpsc0161'. Please see diagnostics information and suggestions below.
+
+Most common reasons for this are:
+
+ * Target node is unreachable (e.g. due to hostname resolution, TCP connection or firewall issues)
+ * CLI tool fails to authenticate with the server (e.g. due to CLI tool's Erlang cookie not matching that of the server)
+ * Target node is not running
+
+In addition to the diagnostics info below:
+
+ * See the CLI, clustering and networking guides on https://rabbitmq.com/documentation.html to learn more
+ * Consult server logs on node rabbit@mpsc0161
+ * If target node is configured to use long node names, don't forget to use --longnames with CLI tools
+
+DIAGNOSTICS
+===========
+
+attempted to contact: [rabbit@mpsc0161]
+
+rabbit@mpsc0161:
+  * connected to epmd (port 4369) on mpsc0161
+  * epmd reports: node 'rabbit' not running at all
+                  no other nodes on mpsc0161
+  * suggestion: start the node
+
+Current node details:
+ * node name: 'rabbitmqcli-565-rabbit@mpsc0161'
+ * effective user's home directory: /home/bz43nogu
+ * Erlang cookie hash: lD7O1TYErbRXqsJFLU+6HA==
+
