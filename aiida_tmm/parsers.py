@@ -172,5 +172,14 @@ class MagParser(Parser):
                 run_status = outcar_parser.get_run_status()
                 return run_status
             if mag:
-                magnetization = float(outcar_parser.get_magnetization())
+                magnetizations = outcar_parser.get_magnetization()['full_cell']
+                magnetization = np.mean(magnetizations)
                 return magnetization
+
+    def time_limit(self):
+        time_limit = False
+        with self.retrieved.open('vasp_output', 'r') as handle:
+            for line in handle.readlines():
+                if 'DUE TO TIME LIMIT' in line:
+                    time_limit = True
+        return time_limit

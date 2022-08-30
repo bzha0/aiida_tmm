@@ -69,3 +69,5 @@ inputs.metadata = {
 CalcFactory = CalculationFactory('vasp_tmm.vasp')
 
 calc = submit(CalcFactory, **inputs)
+group = load_group('mag_calc')
+group.add_nodes(calc)
