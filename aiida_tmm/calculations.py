@@ -59,7 +59,11 @@ class MyVaspCalculation(CalcJob):
         spec.output('dos', 
                 valid_type=ArrayData, 
                 required=False, 
-                help='The outpu dos data.')
+                help='The output dos data.')
+        spec.output('magnetization',
+                    valid_type=Float,
+                    required=False,
+                    help='The output total magnetic moment.')
         # #################################################
         # Complete outputs will be added later.
         # #################################################
