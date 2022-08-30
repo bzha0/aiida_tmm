@@ -61,7 +61,10 @@ inputs.parameters = incar
 inputs.structure = structure
 inputs.potential = potcar
 inputs.kpoints = kpoints
-inputs.metadata = {'label': '2'}
+inputs.metadata = {
+    'label': '2',
+    'options': {'parser_name': 'vasp_tmm.mag'}
+}
 
 CalcFactory = CalculationFactory('vasp_tmm.vasp')
 

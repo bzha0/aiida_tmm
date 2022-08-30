@@ -44,7 +44,7 @@ class MyVaspCalculation(CalcJob):
         #spec.inputs['metadata']['options']['cmdline_parameters'].default = "srun"
         #spec.input('metadata.options.output_filename', valid_type=str)
 
-        spec.input('metadata.options.parser_name', default='vasp_tmm.scf') # or vasp_tmm.dos
+        spec.input('metadata.options.parser_name', default='vasp_tmm.scf') # or vasp_tmm.dos or vasp_tmm.mag
 
         # define outputs
         # spec.output('structure', valid_type=get_data_class('structure'), required=False, help='The output structure (CONTCAR).')

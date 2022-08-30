@@ -22,7 +22,8 @@ setup(
                 ],
             'aiida.parsers': [
                 "vasp_tmm.scf = aiida_tmm.parsers:ScfParser",
-                "vasp_tmm.dos = aiida_tmm.parsers:DosParser"
+                "vasp_tmm.dos = aiida_tmm.parsers:DosParser",
+                "vasp_tmm.mag = aiida_tmm.parsers:MagParser"
                 ],
             'aiida.workflows':[
                 "vasp_tmm.dos = aiida_tmm.workchain:DosWorkChain"
