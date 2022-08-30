@@ -16,7 +16,7 @@ class ScfParser(Parser):
     def parse(self, **kwargs):
         """ :return ExitCode: non-zero exit code, if parsing fails """
 
-        # check that folder content is as expected
+        # check that foldier content is as expected
         files_retrieved = self.retrieved.list_object_names()
 
         # parser OUTCAR file to check if calculation finished or converged
@@ -127,48 +127,3 @@ class DosParser(Parser):
                 integral.append(float(line.split()[2]))
         return np.array([energy, density, integral])
 
-class MagParser(Parser):
-    """
-    Parse magnetic properties out of
-    a spin polarized self-consistent calculation
-    and store in the database
-
-    RUN_STATUS SHOULD ALSO BE CHECKED!
-    """
-    def parse(self, **kwargs):
-        files_retrieved = self.retrieved.list_object_names()
-        files_expected = ['OUTCAR']
-        # if 'OUTCAR' is a subset of the retrieved set
-        if not set(files_expected) <= set(files_retrieved):
-            self.logger.error(f"Found files '{files_retrieved}', expected to find '{files_expected}'")
-            return self.exit_codes.ERROR_MISSING_OUTPUT_FILES
-
-        # parser OUTCAR file to check if calculation finished or converged
-        run_status = self.parse_outcar(files_retrieved)
-        if run_status['finished'] and not run_status['electronic_converged']:
-            return self.exit_codes.ERROR_MAX_STEP_REACHED
-        elif not run_status['finished']:
-            # check vasp_output, if it is caused by time limit
-            if self.time_limit():
-                return self.exit_codes.ERROR_NOT_CONVERGED
-            else:
-                return self.exit_codes.ERROR_COULD_NOT_FINISH
-
-        # parse magnetic moment from OUTCAR
-        magnetization = self.parse_outcar(files_retrieved, mag=True)
-
-        if magnetization:
-            return ExitCode(0)
-        else:
-            return self.exit_codes.ERROR_MAGNETIZATION_NOT_FOUND
-
-    def parse_outcar(self, files_retrieved, mag=False):
-        """ parse either run status or magnetization """
-        with self.retrieved.open('OUTCAR', 'r') as handle:
-            outcar_parser = Outcar(file_handler=handle)
-            if not mag:
-                run_status = outcar_parser.get_run_status()
-                return run_status
-            if mag:
-                magnetization = outcar_parser.get_magnetization()
-                return magnetization

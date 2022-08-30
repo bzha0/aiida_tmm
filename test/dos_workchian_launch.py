@@ -19,7 +19,7 @@ structure = StructureData(pymatgen=structure)
 structure.store()
 
 # Set POTCAR file
-path = '/home/bz43nogu/PBE54/'
+path = '/Users/zhaobo/Documents/PBE54/'
 p = PotcarIo(structure, path)
 potcar_content = p.get_potcar_obj()
 PotcarData = DataFactory('vasp_tmm.potcar')
@@ -92,7 +92,7 @@ incar_dos.store()
 
 workchain = WorkflowFactory('vasp_tmm.dos')
 #builder = workchain.get_builder()
-code_string = 'vasp@localhost'
+code_string = 'vasp@mycluster'
 code = Code.get_from_string(code_string)
 inputs = AttributeDict()
 inputs.code = code

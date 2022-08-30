@@ -14,7 +14,7 @@ load_profile()
 
 data = pd.read_csv('mpid_full.csv')
 
-for mpid in data['mpid'][0:100]:
+for mpid in data['mpid'][400:]:
     # Set POSCAR file
     StructureData = DataFactory('structure')
     with MPRester('Kthv8UMOBNI07gXx') as m:
@@ -23,7 +23,7 @@ for mpid in data['mpid'][0:100]:
     structure.store()
 
     # Set POTCAR file
-    path = '/home/bz43nogu/PBE54/'
+    path = '/Users/zhaobo/Documents/PBE54/'
     p = PotcarIo(structure, path)
     potcar_content = p.get_potcar_obj()
     PotcarData = DataFactory('vasp_tmm.potcar')
@@ -96,7 +96,7 @@ for mpid in data['mpid'][0:100]:
 
     workchain = WorkflowFactory('vasp_tmm.dos')
     #builder = workchain.get_builder()
-    code_string = 'vasp@localhost'
+    code_string = 'vasp@mycluster'
     code = Code.get_from_string(code_string)
     inputs = AttributeDict()
     inputs.code = code
@@ -105,6 +105,7 @@ for mpid in data['mpid'][0:100]:
     inputs.structure = structure
     inputs.potential = potcar
     inputs.kpoints = kpoints
+    inputs.metadata = {'label': mpid}
     #builder.base = base
     #builder.metadata.options.custom_scheduler_commands = '#SBATCH --mem-per-cpu=3800' # 3800 MB per node
 

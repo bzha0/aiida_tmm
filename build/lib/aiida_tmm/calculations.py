@@ -78,9 +78,6 @@ class MyVaspCalculation(CalcJob):
         spec.exit_code(504,
                 'ERROR_UNKNOWN',
                 message='some errors detected in the dos calculation')
-        spec.exit_code(506,
-                       'ERROR_MAGNETIZATION_NOT_FOUND',
-                       message='failed to extract magnetization')
 
 
     def write_incar(self, out_file):

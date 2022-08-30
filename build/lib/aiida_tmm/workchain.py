@@ -162,7 +162,7 @@ class DosWorkChain(WorkChain):
     #    #self._copy_chgcar()
     #    proc = CalculationFactory('vasp_tmm.vasp')
     #    inputs = proc.get_inputs_template()
-        code = Code.get_from_string('vasp@mycluster')
+        code = Code.get_from_string('vasp@localhost')
         builder = code.get_builder()
     #    #code = Code.get_from_string('vasp_tmm@localhost')
     #    code = self.inputs.code
@@ -213,7 +213,18 @@ class DosWorkChain(WorkChain):
         self.out('density_of_states', density_of_states)
         self.report('finish density of states calculation!')
 
-
-
-
-
+    #def group_results(self):
+    #    """ add the WorkChainNode to a specific group 
+    #    based on the exit_status """
+    #    if self.ctx.exit_code == 0:
+    #        group = load_group('dos_done')
+    #        group.add_nodes(calc)
+    #    elif self.ctx.exit_code == 400:
+    #        group = load_group('scf_not_converged')
+    #        group.add_nodes(calc)
+    #    elif calc.exit_status == 401:
+    #        group = load_group('scf_with_error')
+    #        group.add_nodes(calc)
+    #    else:
+    #        group = load_group('dos_unfinished')
+    #        group.add_nodes(calc)
