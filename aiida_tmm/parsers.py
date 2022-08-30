@@ -155,9 +155,11 @@ class MagParser(Parser):
                 return self.exit_codes.ERROR_COULD_NOT_FINISH
 
         # parse magnetic moment from OUTCAR
+        self.logger.info('Parsing the magnetic data')
         magnetization = self.parse_outcar(files_retrieved, mag=True)
 
-        if magnetization:
+        if magnetization is not None:
+            self.out('magnetization', magnetization)
             return ExitCode(0)
         else:
             return self.exit_codes.ERROR_MAGNETIZATION_NOT_FOUND
@@ -170,5 +172,5 @@ class MagParser(Parser):
                 run_status = outcar_parser.get_run_status()
                 return run_status
             if mag:
-                magnetization = outcar_parser.get_magnetization()
+                magnetization = float(outcar_parser.get_magnetization())
                 return magnetization
