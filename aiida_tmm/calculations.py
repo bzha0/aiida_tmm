@@ -61,7 +61,7 @@ class MyVaspCalculation(CalcJob):
                 required=False, 
                 help='The output dos data.')
         spec.output('magnetization',
-                    valid_type=Float,
+                    valid_type=Dict,
                     required=False,
                     help='The output total magnetic moment.')
         # #################################################
@@ -111,15 +111,27 @@ class MyVaspCalculation(CalcJob):
         """
         Write the KPOINTS.
         Opt1: get the content of the kpoints node ('array.kpoints') and write to out_file.
-        Opt2: get automatic kpoints by setting k grid density and reading POSCAR
+        Opt2:  try get automatic kpoints by setting k grid density and reading POSCAR.
+        If failed, write KPOINTS directly as:
+        "
+        Self-generated KPOINTS with latt*nkp product: 50
+        0 ! number of k-points = 0 ->automatic generation scheme
+        Auto !
+        50
+        "
         """
-        poscar = poscar_path
-        structure = Poscar.from_file(poscar).structure
-        k_density = self.inputs.kpoints.get_array('kpoints') # e.g. [50, 50, 50]
-        kpoints = Kpoints.automatic_density_by_lengths(structure, k_density, force_gamma=True) # gamma-centered mesh
-        # kpoints_node = self.inputs.kpoints # kpoints mesh
-        # kpoints_content = kpoints_node 
-        kpoints.write_file(out_file)
+        try:
+            poscar = poscar_path
+            structure = Poscar.from_file(poscar).structure
+            k_density = self.inputs.kpoints.get_array('kpoints') # e.g. [50, 50, 50]
+            kpoints = Kpoints.automatic_density_by_lengths(structure, k_density, force_gamma=True) # gamma-centered mesh
+            # kpoints_node = self.inputs.kpoints # kpoints mesh
+            # kpoints_content = kpoints_node
+            kpoints.write_file(out_file)
+        except:
+            path = Path(out_file)
+            with path.open('a', encoding='utf-8') as out:
+                out.write('Self-generated KPOINTS with latt*nkp product: 50\n0 ! number of k-points = 0 ->automatic generation scheme\nAuto\n50')
 
     def write_potcar(self, out_file):
         """
@@ -127,7 +139,7 @@ class MyVaspCalculation(CalcJob):
         Get the content of the potential node (vasp_tmm.potcar) 
         (should already contain multi potcars with the right symbol oder)
         and write to out_file.
-        :param outpu_file: absolute path of the object to write to
+        :param output_file: absolute path of the object to write to
         """
         #pot_path = self._POT_PATH
         #potcar = PotcarIo(pot_path)

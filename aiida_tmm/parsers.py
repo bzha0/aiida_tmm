@@ -1,7 +1,7 @@
 import numpy as np
 
 from aiida.engine import ExitCode
-from aiida.orm import SinglefileData, ArrayData, Float
+from aiida.orm import SinglefileData, ArrayData, Float, Dict
 from aiida.parsers.parser import Parser
 from aiida.plugins import CalculationFactory
 
@@ -132,8 +132,6 @@ class MagParser(Parser):
     Parse magnetic properties out of
     a spin polarized self-consistent calculation
     and store in the database
-
-    RUN_STATUS SHOULD ALSO BE CHECKED!
     """
     def parse(self, **kwargs):
         files_retrieved = self.retrieved.list_object_names()
@@ -159,6 +157,7 @@ class MagParser(Parser):
         magnetization = self.parse_outcar(files_retrieved, mag=True)
 
         if magnetization is not None:
+            magnetization = Dict(magnetization)
             self.out('magnetization', magnetization)
             return ExitCode(0)
         else:
@@ -171,9 +170,10 @@ class MagParser(Parser):
             if not mag:
                 run_status = outcar_parser.get_run_status()
                 return run_status
+            # get magnetization info as a dict
             if mag:
-                magnetizations = outcar_parser.get_magnetization()['full_cell']
-                magnetization = np.mean(magnetizations)
+                magnetization = outcar_parser.get_magnetization()#['full_cell']
+                #magnetization = np.mean(magnetizations)
                 return magnetization
 
     def time_limit(self):

@@ -11,7 +11,7 @@ from aiida_tmm.utils import PotcarIo
 
 load_profile()
 
-cif_path = '/Users/zhaobo/Documents/GitHub/Copy/2.cif'
+cif_path = '/Users/zhaobo/Documents/GitHub/Copy/775.cif'
 
 # Set POSCAR file
 CifData = DataFactory('cif')
@@ -28,7 +28,7 @@ potcar.store()
 
 # Set INCAR file for mag-scf
 # num of atoms is needed to specify MAGMOM
-n_atoms = structure.get_ase().get_globel_number_of_atoms()
+n_atoms = structure.get_ase().get_global_number_of_atoms()
 
 Dict = DataFactory('dict')
 incar_dict = {
@@ -54,7 +54,6 @@ kpoints.store()
 
 code_string = 'vasp@mycluster'
 code = Code.get_from_string(code_string)
-
 inputs = AttributeDict()
 inputs.code = code
 inputs.parameters = incar
@@ -62,7 +61,7 @@ inputs.structure = structure
 inputs.potential = potcar
 inputs.kpoints = kpoints
 inputs.metadata = {
-    'label': '2',
+    'label': '775',
     'options': {'parser_name': 'vasp_tmm.mag'}
 }
 
