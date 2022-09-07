@@ -1474,3 +1474,31 @@
 2022-08-29 22:25:45.047 CEST [86795] LOG:  terminating any other active server processes
 2022-08-29 22:25:45.052 CEST [86795] LOG:  abnormal database system shutdown
 2022-08-29 22:25:45.054 CEST [86795] LOG:  database system is shut down
+2022-09-07 09:28:00.653 CEST [15192] LOG:  starting PostgreSQL 14.5 (Homebrew) on aarch64-apple-darwin20.6.0, compiled by Apple clang version 13.0.0 (clang-1300.0.29.30), 64-bit
+2022-09-07 09:28:00.656 CEST [15192] LOG:  listening on IPv6 address "::1", port 5432
+2022-09-07 09:28:00.656 CEST [15192] LOG:  listening on IPv4 address "127.0.0.1", port 5432
+2022-09-07 09:28:00.656 CEST [15192] LOG:  listening on Unix socket "/tmp/.s.PGSQL.5432"
+2022-09-07 09:28:00.661 CEST [15193] LOG:  database system was interrupted; last known up at 2022-09-06 17:22:10 CEST
+2022-09-07 09:28:00.712 CEST [15193] LOG:  database system was not properly shut down; automatic recovery in progress
+2022-09-07 09:28:00.714 CEST [15193] LOG:  redo starts at 1/4C7162F8
+2022-09-07 09:28:00.714 CEST [15193] LOG:  invalid record length at 1/4C7163E0: wanted 24, got 0
+2022-09-07 09:28:00.714 CEST [15193] LOG:  redo done at 1/4C7163A8 system usage: CPU: user: 0.00 s, system: 0.00 s, elapsed: 0.00 s
+2022-09-07 09:28:00.717 CEST [15192] LOG:  database system is ready to accept connections
+2022-09-07 09:32:52.010 CEST [16185] LOG:  unexpected EOF on client connection with an open transaction
+2022-09-07 10:38:16.590 CEST [16252] LOG:  unexpected EOF on client connection with an open transaction
+2022-09-07 10:45:07.306 CEST [29415] LOG:  unexpected EOF on client connection with an open transaction
+2022-09-07 10:54:12.435 CEST [31184] LOG:  unexpected EOF on client connection with an open transaction
+2022-09-07 10:54:33.717 CEST [31256] LOG:  unexpected EOF on client connection with an open transaction
+2022-09-07 10:55:35.133 CEST [31476] LOG:  unexpected EOF on client connection with an open transaction
+2022-09-07 10:57:19.875 CEST [31887] LOG:  unexpected EOF on client connection with an open transaction
+2022-09-07 11:08:13.016 CEST [34030] LOG:  unexpected EOF on client connection with an open transaction
+2022-09-07 11:12:53.902 CEST [34936] LOG:  unexpected EOF on client connection with an open transaction
+2022-09-07 11:13:29.060 CEST [35057] LOG:  unexpected EOF on client connection with an open transaction
+2022-09-07 11:19:14.204 CEST [36203] LOG:  unexpected EOF on client connection with an open transaction
+2022-09-07 11:26:43.485 CEST [34140] LOG:  unexpected EOF on client connection with an open transaction
+2022-09-07 13:28:50.793 CEST [57465] LOG:  unexpected EOF on client connection with an open transaction
+2022-09-07 13:29:17.066 CEST [57563] LOG:  unexpected EOF on client connection with an open transaction
+2022-09-07 13:35:08.600 CEST [58595] LOG:  unexpected EOF on client connection with an open transaction
+2022-09-07 13:35:12.552 CEST [58723] LOG:  unexpected EOF on client connection with an open transaction
+2022-09-07 13:35:40.297 CEST [58824] LOG:  unexpected EOF on client connection with an open transaction
+2022-09-07 13:48:29.789 CEST [61325] LOG:  unexpected EOF on client connection with an open transaction

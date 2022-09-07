@@ -14,11 +14,13 @@ from aiida_tmm.utils import PotcarIo
 load_profile()
 
 cif_path = '/Users/zhaobo/Documents/GitHub/cif_4me'
-#cif_list = os.listdir(path)
-cif_list = [str(i)+'.cif' for i in pd.read_csv('/Users/zhaobo/Documents/GitHub/cif_forme.csv')['cif']]
-for cif in cif_list[600:700]:
-    cif_file = os.path.join(cif_path, cif)
 
+#cif_list = [str(i)+'.cif' for i in pd.read_csv('/Users/zhaobo/Documents/GitHub/cif_forme.csv')['cif']]
+#for cif in cif_list[900:]:
+#    cif_file = os.path.join(cif_path, cif)
+cif_list = ['1515.cif', '1209.cif', '857.cif', '858.cif', '4570.cif', '1894.cif']
+for cif in cif_list:
+    cif_file = os.path.join(cif_path, cif)
     # Set POSCAR file
     CifData = DataFactory('cif')
     structure = CifData(file=cif_file)
@@ -40,7 +42,7 @@ for cif in cif_list[600:700]:
     incar_dict = {
         'ISPIN': 2,
         'LORBIT': 11,
-        'MAGMON': '5.0*%s' % n_atoms,
+        'MAGMOM': '5.0*%s' % n_atoms,
         'LASPH': True,
         'GGA_COMPAT': False,
         'VOSKOWN': 1,

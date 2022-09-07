@@ -5,13 +5,24 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="ddedc5fb-b370-4ef8-8fb4-9f84c1cb31fb" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/erl_crash.dump" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/aiida_tmm/erl_crash.dump" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/aiida_tmm/logfile" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/aiida_tmm/workchains/dos_workchain.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test/erl_crash.dump" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test/mag_resubmit_launch.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test/magmom.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test/magmom_new.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test/path_502.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test/path_not_done_502.csv" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/aiida_tmm.egg-info/SOURCES.txt" beforeDir="false" afterPath="$PROJECT_DIR$/aiida_tmm.egg-info/SOURCES.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/aiida_tmm.egg-info/entry_points.txt" beforeDir="false" afterPath="$PROJECT_DIR$/aiida_tmm.egg-info/entry_points.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/aiida_tmm/calculations.py" beforeDir="false" afterPath="$PROJECT_DIR$/aiida_tmm/calculations.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/aiida_tmm/parsers.py" beforeDir="false" afterPath="$PROJECT_DIR$/aiida_tmm/parsers.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/aiida_tmm/utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/aiida_tmm/utils.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/single_mag_launch.py" beforeDir="false" afterPath="$PROJECT_DIR$/test/single_mag_launch.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/aiida_tmm/workchain.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/logfile" beforeDir="false" afterPath="$PROJECT_DIR$/logfile" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/setup.py" beforeDir="false" afterPath="$PROJECT_DIR$/setup.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/logfile" beforeDir="false" afterPath="$PROJECT_DIR$/test/logfile" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/mag_launch.py" beforeDir="false" afterPath="$PROJECT_DIR$/test/mag_launch.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -40,20 +51,20 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "ASKED_ADD_EXTERNAL_FILES": "true",
-    "ASKED_SHARE_PROJECT_CONFIGURATION_FILES": "true",
-    "RunOnceActivity.OpenProjectViewOnStart": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "WebServerToolWindowFactoryState": "false",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "settings.editor.selected.configurable": "preferences.pluginManager"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;ASKED_ADD_EXTERNAL_FILES&quot;: &quot;true&quot;,
+    &quot;ASKED_SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;
   }
-}]]></component>
+}</component>
   <component name="RunManager">
     <configuration default="true" type="PythonConfigurationType" factoryName="Python">
       <module name="aiida_tmm" />
@@ -88,7 +99,9 @@
       <updated>1661761159721</updated>
       <workItem from="1661761165400" duration="6419000" />
       <workItem from="1661843818529" duration="33895000" />
-      <workItem from="1661928635955" duration="46954000" />
+      <workItem from="1661928635955" duration="83707000" />
+      <workItem from="1662359613533" duration="43346000" />
+      <workItem from="1662531303570" duration="11164000" />
     </task>
     <servers />
   </component>

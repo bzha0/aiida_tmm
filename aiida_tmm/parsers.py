@@ -144,17 +144,31 @@ class MagParser(Parser):
         # parser OUTCAR file to check if calculation finished or converged
         run_status = self.parse_outcar(files_retrieved)
         if run_status['finished'] and not run_status['electronic_converged']:
+            try:
+                magnetization = self.get_mag(files_retrieved)
+                self.out('magnetization', magnetization)
+            except:
+                pass
             return self.exit_codes.ERROR_MAX_STEP_REACHED
         elif not run_status['finished']:
             # check vasp_output, if it is caused by time limit
             if self.time_limit():
+                try:
+                    magnetization = self.get_mag(files_retrieved)
+                    self.out('magnetization', magnetization)
+                except:
+                    pass
                 return self.exit_codes.ERROR_NOT_CONVERGED
             else:
+                try:
+                    magnetization = self.get_mag(files_retrieved)
+                    self.out('magnetization', magnetization)
+                except ValueError:
+                    pass
                 return self.exit_codes.ERROR_COULD_NOT_FINISH
 
         # parse magnetic moment from OUTCAR
-        self.logger.info('Parsing the magnetic data')
-        magnetization = self.parse_outcar(files_retrieved, mag=True)
+        magnetization = self.get_mag(files_retrieved)
 
         if magnetization is not None:
             magnetization = Dict(magnetization)
@@ -162,6 +176,10 @@ class MagParser(Parser):
             return ExitCode(0)
         else:
             return self.exit_codes.ERROR_MAGNETIZATION_NOT_FOUND
+
+    def get_mag(self, files_retrieved):
+        self.logger.info('Parsing the magnetic data')
+        return self.parse_outcar(files_retrieved, mag=True)
 
     def parse_outcar(self, files_retrieved, mag=False):
         """ parse either run status or magnetization """

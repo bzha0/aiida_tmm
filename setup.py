@@ -26,7 +26,7 @@ setup(
                 "vasp_tmm.mag = aiida_tmm.parsers:MagParser"
                 ],
             'aiida.workflows':[
-                "vasp_tmm.dos = aiida_tmm.workchain:DosWorkChain"
+                "vasp_tmm.dos = aiida_tmm.workchains.dos_workchain:DosWorkChain"
                 ]
             }
         )
